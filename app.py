@@ -137,7 +137,12 @@ def count():
 @app.route("/person/<uuid:id>")
 
 def find_by_uuid(id):
+    """FIND persons in the database
 
+    Returns: 
+        jason: persons if found, with status of 200
+        404: person not found
+    """
     for person in data:
 
         if person["id"] == str(id):
@@ -147,10 +152,37 @@ def find_by_uuid(id):
     return {"message": "person not found"}, 404
 
 @app.route("/person/<uuid:id>", methods=['DELETE'])
+
 def delete_by_uuid(id):
+    """delete persons in the database
+
+    Returns: 
+        jason: persons if found Delete, with status of 200
+        404: person not found
+    """
     for person in data:
         if person["id"] == str(id):
             data.remove(person)
             return {"message":f"{id}"}, 200
     return {"message": "person not found"}, 404
 
+@app.route("/person", methods=['POST'])
+def add_by_uuid():
+    """
+     Returns: 
+        jason: persons if found Delete, with status of 200
+        404: person not found
+    """
+    new_person = request.json
+    if not new_person:
+        return {"message": "Invalid input parameter"}, 200
+    try:
+        data.append(new_person)
+    except NameError:
+        return{"message", "data not defined"}, 500
+    return{"message": f"{new_person['id']}"}, 200
+
+
+@app.errorhandler(404)
+def api_not_found(error):
+    return {"message": "API not found"}, 404
