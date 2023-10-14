@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, make_response
+from flask import Flask, jsonify, make_response, request
 
 app = Flask(__name__)
 
@@ -98,3 +98,59 @@ def get_data():
             return{"message": "Data is empty"}, 500
     except NameError:
         return{"message": "Data not found"}, 404
+    
+@app.route("/name_search")
+
+def name_search():
+    """find a person in the database
+
+    Returns: 
+        jason: person if found, with status of 200
+        404: if not found 
+        422: if argumet q is missing
+    """
+    query = request.args.get("q")
+
+    if not query:
+        return {"message":"Invalid input parameter"}, 422
+    
+    for person in data:
+        if query.lower() in person["first_name"].lower():
+            return person
+    
+    return ({"message": "Person not found"}, 404)
+
+@app.route("/count")
+
+def count():
+    """count persons in the database
+
+    Returns: 
+        jason: count persons if found, with status of 200
+        500: data not defined
+    """
+    try:
+        return{"data count": len(data)}, 200
+    except NameError:
+        return{"message": "data not defined"}, 500
+
+@app.route("/person/<uuid:id>")
+
+def find_by_uuid(id):
+
+    for person in data:
+
+        if person["id"] == str(id):
+
+            return person
+        
+    return {"message": "person not found"}, 404
+
+@app.route("/person/<uuid:id>", methods=['DELETE'])
+def delete_by_uuid(id):
+    for person in data:
+        if person["id"] == str(id):
+            data.remove(person)
+            return {"message":f"{id}"}, 200
+    return {"message": "person not found"}, 404
+
